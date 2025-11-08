@@ -9,41 +9,59 @@ Your response must always be a valid JSON array, with no additional text before 
 
 Each object in the array represents a checkpoint and must follow this exact structure:
 {
-  "time": "string", // The expected time of arrival at the checkpoint (e.s., "2025-11-09T14:30:00Z")
   "location": "string", // The city or municipality name of the checkpoint
-  "weatherData": {
-    "precipitation": "string", // The probability of precipitation as a percentage string (e.g., "15%")
-    "type": "string" // The weather condition. Must be one of: "Sunny", "Cloudy", "Raining", "Stormy", "Snowy", "Clear"
-  }
+  "weatherData": [
+    {
+      "time": "string", // The time of the forecast (e.g., "08:00 AM")
+      "precipitation": "string", // The probability of precipitation (e.g., "15%")
+      "type": "string" // Must be one of: "Sunny", "Cloudy", "Raining", "Stormy", "Snowy", "Clear"
+    }
+  ]
 }
 
-The first object in the array should be the starting location, and the last object should be the final destination.
+The array should contain the start location and the final destination. The "weatherData" array should contain forecasts in 3-hour intervals for the next 12 hours.
 
 Example of a valid response:
 [
   {
-    "time": "2025-11-09T14:00:00Z",
-    "location": "Manila City",
-    "weatherData": {
-      "precipitation": "10%",
-      "type": "Cloudy"
-    }
+    "location": "San Francisco",
+    "weatherData": [
+      {
+        "time": "08:00 AM",
+        "precipitation": "5%",
+        "type": "Sunny"
+      },
+      {
+        "time": "11:00 AM",
+        "precipitation": "20%",
+        "type": "Cloudy"
+      },
+      {
+        "time": "02:00 PM",
+        "precipitation": "80%",
+        "type": "Raining"
+      }
+    ]
   },
   {
-    "time": "2025-11-09T14:30:00Z",
-    "location": "Pasay City",
-    "weatherData": {
-      "precipitation": "15%",
-      "type": "Cloudy"
-    }
-  },
-  {
-    "time": "2025-11-09T15:00:00Z",
-    "location": "Bacoor, Cavite",
-    "weatherData": {
-      "precipitation": "30%",
-      "type": "Raining"
-    }
+    "location": "Seattle",
+    "weatherData": [
+      {
+        "time": "08:00 AM",
+        "precipitation": "85%",
+        "type": "Raining"
+      },
+      {
+        "time": "11:00 AM",
+        "precipitation": "60%",
+        "type": "Cloudy"
+      },
+      {
+        "time": "02:00 PM",
+        "precipitation": "30%",
+        "type": "Cloudy"
+      }
+    ]
   }
 ]`;
 
