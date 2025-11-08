@@ -33,10 +33,10 @@ function App() {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold underline mb-4">Weather Wizard</h1>
+      <h1 className="text-3xl font-bold underline mb-4 text-white">Weather Wizard</h1>
 
       <div className="mb-4">
-        <h2 className="text-lg font-medium">Select your route</h2>
+        <h2 className="text-lg font-medium text-white">Select your route</h2>
       </div>
 
       <div className="flex gap-4 items-end mb-6 ">
@@ -97,9 +97,6 @@ function App() {
           <div className="col-span-full text-sm text-gray-500">Still thinking where to go?</div>
         ) : (
           results.map((item, idx) => {
-            // handle different backend shapes:
-            // - item could be { city, entries: [...] }
-            // - or item could be a single entry; fallback to using item as single-row entries
             const city = item.city || `Result ${idx + 1}`;
             const entries = Array.isArray(item.entries)
               ? item.entries
