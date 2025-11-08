@@ -3,20 +3,49 @@ import axios from 'axios';
 const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
 const MODEL_NAME = process.env.OLLAMA_MODEL || 'mistral'; // Mistral is a good default for structured output
 
-const systemPrompt = `You are a weather analysis expert. Given a location and time, provide a structured weather analysis.
-Your response must always follow this exact JSON structure, with no additional text before or after:
+const systemPrompt = `You are a weather analysis expert. You will be given data for a series of route checkpoints. Your task is to format this data into a JSON array, where each object represents the weather at a specific checkpoint.
+
+Your response must always be a valid JSON array, with no additional text before or after.
+
+Each object in the array represents a checkpoint and must follow this exact structure:
 {
-  "location": {
-    "city": string,
-    "country": string
+  "time": "string", // The expected time of arrival at the checkpoint (e.s., "2025-11-09T14:30:00Z")
+  "location": "string", // The city or municipality name of the checkpoint
+  "weatherData": {
+    "precipitation": "string", // The probability of precipitation as a percentage string (e.g., "15%")
+    "type": "string" // The weather condition. Must be one of: "Sunny", "Cloudy", "Raining", "Stormy", "Snowy", "Clear"
+  }
+}
+
+The first object in the array should be the starting location, and the last object should be the final destination.
+
+Example of a valid response:
+[
+  {
+    "time": "2025-11-09T14:00:00Z",
+    "location": "Manila City",
+    "weatherData": {
+      "precipitation": "10%",
+      "type": "Cloudy"
+    }
   },
-  "analysis": {
-    "summary": string (2-3 sentences),
-    "recommendations": string[] (3 items),
-    "severity": "low" | "moderate" | "high"
+  {
+    "time": "2025-11-09T14:30:00Z",
+    "location": "Pasay City",
+    "weatherData": {
+      "precipitation": "15%",
+      "type": "Cloudy"
+    }
   },
-  "timestamp": string (ISO format)
-}`;
+  {
+    "time": "2025-11-09T15:00:00Z",
+    "location": "Bacoor, Cavite",
+    "weatherData": {
+      "precipitation": "30%",
+      "type": "Raining"
+    }
+  }
+]`;
 
 export const analyzeWeatherQuery = async (userQuery) => {
   try {
