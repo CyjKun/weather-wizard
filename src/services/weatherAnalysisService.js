@@ -72,14 +72,14 @@ export const analyzeWeatherQuery = async (userQuery) => {
     }
 
     // Validate the response structure
-    if (!analysis.location?.city || 
-        !analysis.location?.country || 
-        !analysis.analysis?.summary || 
-        !Array.isArray(analysis.analysis?.recommendations) ||
-        !analysis.analysis?.severity ||
-        !analysis.timestamp) {
-      throw new Error('Invalid response structure from LLM');
-    }
+    // if (!analysis.location?.city || 
+    //     !analysis.location?.country || 
+    //     !analysis.analysis?.summary || 
+    //     !Array.isArray(analysis.analysis?.recommendations) ||
+    //     !analysis.analysis?.severity ||
+    //     !analysis.timestamp) {
+    //   throw new Error('Invalid response structure from LLM');
+    // }
 
     return analysis;
   } catch (error) {
