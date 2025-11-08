@@ -29,24 +29,74 @@ function App() {
     },
   ];
 
+  // normalize LLM/backend response ({ "City": { weatherData: [...] }, ... }) -> sampleResults shape
+  function normalizeAnalysisResponse(raw) {
+    if (!raw || typeof raw !== "object") return [];
+
+    const mapTypeToIcon = (type) => {
+      const t = String(type || "").toLowerCase();
+      if (t.includes("sun")) return "sun";
+      if (t.includes("clear")) return "sun";
+      if (t.includes("cloud")) return "cloud";
+      if (t.includes("rain")) return "rain";
+      if (t.includes("storm") || t.includes("thunder")) return "storm";
+      return "cloud";
+    };
+
+    return Object.keys(raw).map((city) => {
+      const payload = raw[city] || {};
+      const weatherData = Array.isArray(payload.weatherData) ? payload.weatherData : [];
+
+      const entries = weatherData.map((e) => {
+        const time = e.time ?? "-";
+        const precipRaw = e.precipitation ?? e.precip ?? "0";
+        const precip =
+          typeof precipRaw === "string"
+            ? parseInt(precipRaw.replace("%", "").trim()) || 0
+            : Number(precipRaw) || 0;
+        const weather = mapTypeToIcon(e.type ?? e.weather ?? "");
+        return { time, precip, weather };
+      });
+
+      return { city, entries };
+    });
+  }
+
   async function handleGo() {
     setError(null);
     if (!from.trim() || !to.trim()) {
       setError("Both From and To are required.");
       return;
     }
+
     setLoading(true);
     try {
-      const res = await fetch("/api/route", {
+      const base = "http://localhost:3000";
+      const url = `${base}/api/weather/analyze`;
+      const query = `${from.trim()} to ${to.trim()}`;
+
+      console.log("Calling analysis endpoint with query:", query);
+
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ from, to }),
+        body: JSON.stringify({ query, variables: {} }),
       });
-      if (!res.ok) throw new Error(`Server error: ${res.status}`);
+
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(`Server error ${res.status}: ${txt}`);
+      }
+
       const data = await res.json();
-      setResults(Array.isArray(data) ? data : []);
+      console.log("Analysis response:", data);
+
+      const normalized = normalizeAnalysisResponse(data);
+      setResults(normalized.length ? normalized : [...sampleResults]);
     } catch (err) {
-      setError(err.message || "Request failed");
+      console.error("handleGo failed:", err);
+      setError(err?.message || "Request failed");
+      setResults([...sampleResults]); // fallback so UI shows something
     } finally {
       setLoading(false);
     }
